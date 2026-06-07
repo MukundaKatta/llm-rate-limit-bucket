@@ -9,12 +9,26 @@ description = "Token-bucket rate limiter for LLM API calls"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
+keywords = ["rate-limit", "token-bucket", "llm", "throttle", "ratelimiter"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
 ]
+
+[project.urls]
+Homepage = "https://github.com/MukundaKatta/llm-rate-limit-bucket"
+Repository = "https://github.com/MukundaKatta/llm-rate-limit-bucket"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+llm_rate_limit_bucket = ["py.typed"]
