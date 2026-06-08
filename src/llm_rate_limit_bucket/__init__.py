@@ -1,25 +1,22 @@
 """
 llm-rate-limit-bucket: Token-bucket rate limiter for LLM API calls.
 """
+
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 
 class RateLimitExceeded(Exception):
     """Raised when the rate limit is exceeded and blocking is disabled."""
+
     def __init__(self, bucket_name: str, retry_after: float) -> None:
         self.bucket_name = bucket_name
         self.retry_after = retry_after
-        super().__init__(f"Rate limit exceeded for '{bucket_name}'. Retry after {retry_after:.2f}s.")
-
-
-@dataclass
-class BucketState:
-    tokens: float
-    last_refill: float = field(default_factory=time.monotonic)
+        super().__init__(
+            f"Rate limit exceeded for '{bucket_name}'. Retry after {retry_after:.2f}s."
+        )
 
 
 class TokenBucket:
@@ -103,11 +100,14 @@ class TokenBucket:
 
     def wrap(self, cost: float = 1.0, block: bool = True) -> Callable[..., Any]:
         """Decorator: acquire before each call."""
+
         def decorator(fn: Callable[..., Any]) -> Callable[..., Any]:
             def wrapper(*args: Any, **kwargs: Any) -> Any:
                 self.acquire(cost=cost, block=block)
                 return fn(*args, **kwargs)
+
             return wrapper
+
         return decorator
 
 

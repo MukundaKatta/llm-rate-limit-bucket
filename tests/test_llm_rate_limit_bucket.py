@@ -1,4 +1,5 @@
 """Tests for llm-rate-limit-bucket."""
+
 import time
 import pytest
 from llm_rate_limit_bucket import TokenBucket, MultiKeyBucket, RateLimitExceeded
@@ -118,3 +119,31 @@ def test_refill_over_time():
     b.try_acquire()
     time.sleep(0.02)  # wait for refill
     assert b.try_acquire() is True
+
+
+def test_acquire_succeeds_when_available():
+    b = TokenBucket(capacity=5, rate_per_second=1.0)
+    b.acquire()  # should consume a token without blocking
+    assert b.available_tokens == pytest.approx(4.0, abs=0.1)
+
+
+def test_acquire_blocks_then_succeeds():
+    b = TokenBucket(capacity=1, rate_per_second=100.0)  # fast refill
+    b.try_acquire()  # drain
+    start = time.monotonic()
+    b.acquire()  # must wait for a token to refill, then succeed
+    elapsed = time.monotonic() - start
+    assert elapsed > 0.0
+
+
+def test_multi_key_bucket_acquire_drains():
+    mb = MultiKeyBucket(capacity=1, rate_per_second=0.1)
+    mb.acquire("k")  # consumes the only token
+    assert mb.try_acquire("k") is False
+
+
+def test_multi_key_bucket_acquire_non_blocking_raises():
+    mb = MultiKeyBucket(capacity=1, rate_per_second=0.1)
+    mb.acquire("k")  # drain
+    with pytest.raises(RateLimitExceeded):
+        mb.acquire("k", block=False)
